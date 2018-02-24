@@ -1,0 +1,75 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.arny.mvpclean"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+        vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix '.debug'
+            minifyEnabled false
+            debuggable true
+        }
+    }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile libraries.kotlinStd
+/*support*/
+    compile libraries.support
+    compile libraries.supportAppCompat
+    compile libraries.supportDesign
+    compile libraries.supportCardView
+    compile libraries.supportPreference
+    compile libraries.supportRecyclerview
+    compile libraries.constraint
+    /*network*/
+    compile libraries.okHttp
+    compile libraries.retrofit
+    compile libraries.gson
+    compile libraries.retrofitGsonConverter
+    compile libraries.retrofitRxJavaAdapter
+    /*UI*/
+    compile libraries.glide
+    annotationProcessor libraries.glideCompiler
+    /*ROOM DB*/
+    implementation libraries.roomRuntime
+    kapt libraries.roomCompiler
+    annotationProcessor libraries.roomCompiler
+    implementation libraries.roomRxjava
+    // Developer Tools
+    debugCompile libraries.okHttpLoggingInterceptor
+    debugCompile libraries.stetho
+    debugCompile libraries.stethoOkHttp
+    /*RX*/
+    compile libraries.rxJava
+    compile libraries.rxAndroid
+    // Tests
+    testImplementation 'org.json:json:20140107'
+    testImplementation libraries.junit
+    testImplementation libraries.assertjCore
+    androidTestCompile libraries.assertjAndroid
+    androidTestCompile libraries.assertjSupport
+    testImplementation libraries.mockito
+    testImplementation libraries.mockitoAndroid
+    testImplementation libraries.robolectric
+}
