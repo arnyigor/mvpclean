@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -32,24 +33,25 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile libraries.kotlinStd
+    compile project(path: ':arnylib')
+    implementation libraries.kotlinStd
+    implementation libraries.kotlinKtx
 /*support*/
-    compile libraries.support
-    compile libraries.supportAppCompat
-    compile libraries.supportDesign
-    compile libraries.supportCardView
-    compile libraries.supportPreference
-    compile libraries.supportRecyclerview
-    compile libraries.constraint
+    implementation libraries.support
+    implementation libraries.supportAppCompat
+    implementation libraries.supportDesign
+    implementation libraries.supportCardView
+    implementation libraries.supportPreference
+    implementation libraries.supportRecyclerview
+    implementation libraries.constraint
     /*network*/
-    compile libraries.okHttp
-    compile libraries.retrofit
-    compile libraries.gson
-    compile libraries.retrofitGsonConverter
-    compile libraries.retrofitRxJavaAdapter
+    implementation libraries.okHttp
+    implementation libraries.retrofit
+    implementation libraries.gson
+    implementation libraries.retrofitGsonConverter
+    implementation libraries.retrofitRxJavaAdapter
     /*UI*/
-    compile libraries.glide
+    implementation libraries.glide
     annotationProcessor libraries.glideCompiler
     /*ROOM DB*/
     implementation libraries.roomRuntime
@@ -61,8 +63,11 @@ dependencies {
     debugCompile libraries.stetho
     debugCompile libraries.stethoOkHttp
     /*RX*/
-    compile libraries.rxJava
-    compile libraries.rxAndroid
+    implementation libraries.rxJava
+    implementation libraries.rxAndroid
+
+    implementation 'com.afollestad.material-dialogs:core:0.9.5.0'
+    implementation 'com.afollestad.material-dialogs:commons:0.9.5.0'
     // Tests
     testImplementation 'org.json:json:20140107'
     testImplementation libraries.junit

@@ -1,4 +1,4 @@
-package com.arny.mvpclean
+package com.arny.mvpclean.utils
 
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.Flowable
