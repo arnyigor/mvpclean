@@ -7,7 +7,7 @@ import android.content.Context
 import com.arny.arnylib.database.SingletonHolder
 import com.arny.mvpclean.data.models.CleanFolder
 
-@Database(entities = arrayOf(CleanFolder::class), version = 1, exportSchema = false)
+@Database(entities = arrayOf(CleanFolder::class), version = 2, exportSchema = false)
 abstract class MainDB   : RoomDatabase() {
     companion object : SingletonHolder<MainDB, Context>({
         Room.databaseBuilder(it.applicationContext,

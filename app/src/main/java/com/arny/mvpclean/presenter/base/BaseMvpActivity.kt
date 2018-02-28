@@ -4,9 +4,10 @@ import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+import com.arny.arnylib.utils.ToastMaker
 
 abstract class BaseMvpActivity<in V : BaseMvpView, T : BaseMvpPresenter<V>>
-: AppCompatActivity(), BaseMvpView {
+    : AppCompatActivity(), BaseMvpView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,21 +18,12 @@ abstract class BaseMvpActivity<in V : BaseMvpView, T : BaseMvpPresenter<V>>
 
     protected abstract var mPresenter: T
 
-
-    override fun showError(error: String?) {
-        Toast.makeText(this, error, Toast.LENGTH_LONG).show()
+    override fun toastError(error: String?) {
+        ToastMaker.toastError(getContext(), error)
     }
 
-    override fun showError(stringResId: Int) {
-        Toast.makeText(this, stringResId, Toast.LENGTH_LONG).show()
-    }
-
-    override fun showMessage(srtResId: Int) {
-        Toast.makeText(this, srtResId, Toast.LENGTH_LONG).show()
-    }
-
-    override fun showMessage(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    override fun toastSuccess(message: String?) {
+        ToastMaker.toastSuccess(getContext(), message)
     }
 
     override fun onDestroy() {

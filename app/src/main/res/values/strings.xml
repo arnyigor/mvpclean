@@ -1,16 +1,33 @@
 <resources>
 	<string name="app_name">mvpclean</string>
-	<string name="title_activity_auth">Sign in</string>
-
-	<!-- Strings related to login -->
-	<string name="prompt_email">Email</string>
-	<string name="prompt_password">Password (optional)</string>
-	<string name="action_sign_in">Sign in or register</string>
-	<string name="action_sign_in_short">Sign in</string>
-	<string name="error_invalid_email">This email address is invalid</string>
-	<string name="error_invalid_password">This password is too short</string>
-	<string name="error_incorrect_password">This password is incorrect</string>
-	<string name="error_field_required">This field is required</string>
-	<string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
 	<string name="choose_folder">Выбрать папку</string>
+	<string name="action_settings">Настройки</string>
+	<string name="date">Дата</string>
+	<string name="title">Заголовок</string>
+	<string name="notitle">Нет заголовка</string>
+	<string name="time">Время</string>
+	<string name="remain">Осталось:</string>
+	<string name="after">Прошло:</string>
+	<string name="info">Описание</string>
+	<string name="noinfo">Нет описания</string>
+	<string name="repeat">Повторять каждые  </string>
+	<string name="repeatoff">Повтор выкл.</string>
+	<string name="before">заранее  </string>
+	<string name="beforeoff">заранее выкл.</string>
+	<string name="zero">0</string>
+	<string name="months">мес. </string>
+	<string name="weeks">нед. </string>
+	<string name="days">дн. </string>
+	<string name="hours">час. </string>
+	<string name="minutes">мин. </string>
+	<string name="seconds">сек. </string>
+	<string name="today">Сегодня:</string>
+	<!-- Repeat types -->
+	<string-array name="repeattypes">
+		<item>@string/minutes</item>
+		<item>@string/hours</item>
+		<item>@string/days</item>
+		<item>@string/weeks</item>
+		<item>@string/months</item>
+	</string-array>
 </resources>

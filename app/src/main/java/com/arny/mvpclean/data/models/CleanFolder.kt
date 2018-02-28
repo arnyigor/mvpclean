@@ -8,14 +8,19 @@ import android.arch.persistence.room.PrimaryKey
 import java.util.UUID
 
 @Entity(tableName = "folders")
-data class CleanFolder(
-        @PrimaryKey(autoGenerate = true)
-        @ColumnInfo(name = "_id")
-        var id: Long? = null) {
+data class CleanFolder(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id") var id: Long? = null) {
+    @Ignore
     var title: String? = null
+    @ColumnInfo(name = "path")
     var path: String? = null
+    @Ignore
     var size: Long = 0.toLong()
 
     @Ignore
-    constructor() : this(null)
+    constructor() : this(id = null)
+
+    @Ignore
+    constructor(path: String? = null) : this(id = null) {
+        this.path = path
+    }
 }

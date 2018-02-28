@@ -13,11 +13,17 @@ object MainContract {
         fun showTotalSize(size: String)
         fun showAddDialog()
         fun updateInfo(text: String)
+        fun showMessage(message: String)
+        fun updateBtn(enable: Boolean)
     }
 
     interface Presenter : BaseMvpPresenter<View> {
         fun loadList()
+        fun removeFolderItem(position: Int, folders: ArrayList<CleanFolder>)
         fun calcTotalSize()
         fun addFolder(folder: File)
+        fun cleanFolders()
+        fun setUpdateToRemove()
+        fun updateFoldersSize(folders: ArrayList<CleanFolder>)
     }
 }

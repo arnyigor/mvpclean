@@ -8,9 +8,12 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import com.afollestad.materialdialogs.folderselector.FolderChooserDialog
 import com.arny.arnylib.adapters.SimpleBindableAdapter
+import com.arny.arnylib.interfaces.ConfirmDialogListener
 import com.arny.arnylib.utils.BasePermissions
+import com.arny.arnylib.utils.confirmDialog
 import com.arny.mvpclean.R
 import com.arny.mvpclean.data.models.CleanFolder
 import com.arny.mvpclean.presenter.base.BaseMvpActivity
@@ -18,7 +21,35 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 
 
-class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainContract.View,FolderChooserDialog.FolderCallback {
+class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainContract.View, FolderChooserDialog.FolderCallback, View.OnClickListener {
+
+    override fun updateBtn(enable: Boolean) {
+        btnClean.isEnabled = enable
+    }
+
+    override fun onClick(v: View) {
+        when (v.id) {
+            R.id.btnClean -> {
+                confirmDialog(this, "Подтвердите удаление", "Удалить файлы с диска?", dialogListener = object : ConfirmDialogListener {
+                    override fun onConfirm() {
+                        mPresenter.cleanFolders()
+                    }
+
+                    override fun onCancel() {
+                    }
+                })
+            }
+        }
+    }
+
+    override fun showError(error: String?) {
+        tvCleanFilesInfo.text = error
+    }
+
+    override fun showMessage(message: String) {
+        tvCleanFilesInfo.text = message
+    }
+
     override fun clearList() {
         adapter?.clear()
     }
@@ -59,16 +90,15 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         setContentView(R.layout.activity_main)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
-        if (supportActionBar != null) {
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            title = "Очистка директорий"
-        }
+        title = "Очистка директорий"
         setUpList()
+        mPresenter.loadList()
+        btnClean.setOnClickListener(this)
     }
 
     override fun onResume() {
         super.onResume()
-        mPresenter.loadList()
+        adapter?.items?.let { mPresenter.updateFoldersSize(it) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -100,13 +130,26 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-
     private fun setUpList() {
-        rvFiles.layoutManager = LinearLayoutManager(this)
+        rvFiles.layoutManager = LinearLayoutManager(this@MainActivity)
         adapter = SimpleBindableAdapter(this, R.layout.files_list_item, MainListHolder::class.java)
         rvFiles.adapter = adapter
-    }
+        adapter?.setActionListener(object : MainListHolder.MainActionListener {
+            override fun onItemClick(position: Int, Item: Any?) {
+            }
 
+            override fun onRemove(position: Int) {
+                confirmDialog(this@MainActivity, "Подтвердите удаление", content = "Удалить из списка " + adapter?.getItem(position)?.title + "?", dialogListener = object : ConfirmDialogListener {
+                    override fun onConfirm() {
+                        adapter?.items?.let { mPresenter.removeFolderItem(position, it) }
+                    }
+
+                    override fun onCancel() {
+                    }
+                })
+            }
+        })
+    }
 
     override fun showList(list: MutableList<CleanFolder>) {
         adapter?.addAll(list)
