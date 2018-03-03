@@ -15,9 +15,40 @@ import com.arny.mvpclean.presenter.base.BaseMvpPresenterImpl
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import java.io.File
+import android.os.SystemClock
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Intent
+import androidx.content.systemService
+import com.arny.mvpclean.data.models.ScheduleData
+import com.arny.mvpclean.data.repository.utils.UpdateManager
+import com.arny.mvpclean.data.repository.utils.getTimeDiff
+import java.util.*
 
 
 class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Presenter {
+    override fun setSchedule(scheduleData: ScheduleData?) {
+        val work = scheduleData?.isWork ?: false
+        val alarmManager = mContext.systemService<AlarmManager>()
+        val pi = PendingIntent.getBroadcast(mContext, 0,
+                Intent(mContext, UpdateManager::class.java), PendingIntent.FLAG_UPDATE_CURRENT)
+        if (work) {
+            val time = scheduleData?.time
+            val calendar = Calendar.getInstance()
+            val diff = time?.let { getTimeDiff(it, calendar.timeInMillis) } ?: 0
+            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis + diff, pi)
+            // Restart alarm if device is rebooted
+//            val receiver = ComponentName(mContext, BootReceiver::class.java)
+//            val pm = mContext.packageManager
+//        pm.setComponentEnabledSetting(receiver,
+//                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+//                PackageManager.DONT_KILL_APP)
+        } else {
+            alarmManager.cancel(pi)
+        }
+
+    }
+
     override fun updateFoldersSize(list: ArrayList<CleanFolder>) {
         Utility.mainThreadObservable(Observable.fromCallable { list }
                 .map {
@@ -34,13 +65,6 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
                 })
 
 
-    }
-
-    override fun setUpdateToRemove() {
-//        val alarmManager = mContext.systemService<AlarmManager>()
-//        val i = Intent(mContext, UpdateManager::class.java)
-//        val pi = PendingIntent.getBroadcast(mContext, 0, i, PendingIntent.FLAG_UPDATE_CURRENT)
-//        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), 60000, pi)
     }
 
     override fun cleanFolders() {

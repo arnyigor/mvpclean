@@ -1,17 +1,19 @@
 package com.arny.mvpclean
 
+import com.arny.mvpclean.data.repository.utils.getTimeDiff
+import org.assertj.core.api.Assertions.assertThat
+import org.joda.time.DateTime
 import org.junit.Test
 
-import org.junit.Assert.*
-
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
 class ExampleUnitTest {
+
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun getTimeDiffT() {
+        val now = DateTime.now()
+        val plusMinutes = now.plusMinutes(10)
+        val h = plusMinutes.hourOfDay
+        val min = plusMinutes.minuteOfHour
+        val timeDiff = getTimeDiff("$h:$min",0)
+        assertThat(timeDiff).isGreaterThan(0)
     }
 }

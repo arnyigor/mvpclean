@@ -11,7 +11,7 @@
 				android:id="@+id/toolbar"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:background="?attr/colorPrimary"
+				android:background="@color/colorPrimary"
 				app:popupTheme="@style/AppTheme.PopupOverlay"
 				app:titleTextColor="@color/colorWhite"
 				app:subtitleTextColor="@color/colorWhite"
@@ -25,8 +25,8 @@
 				tools:listitem="@layout/files_list_item"
 				app:layout_constraintHorizontal_bias="0.0"
 				android:layout_height="0dp"
-				android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/tvCleanFilesInfo"
-				android:layout_marginBottom="8dp" app:layout_constraintBottom_toTopOf="@+id/btnClean"/>
+				android:layout_marginBottom="8dp" app:layout_constraintBottom_toTopOf="@+id/btnClean"
+				android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/ivRemoveSchedule"/>
 		<TextView
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
@@ -44,6 +44,33 @@
 				android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
 				android:layout_marginStart="8dp" style="@style/Widget.AppCompat.Button.Colored"
 				android:enabled="false"/>
+		<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:id="@+id/tvSchedule" app:layout_constraintStart_toStartOf="parent"
+				android:layout_marginStart="8dp"
+				android:textAppearance="@style/TextAppearance.AppCompat"
+				tools:text="Расписание:Каждый ПН,СР,ПТ,ВС в 19:25"
+				app:layout_constraintTop_toTopOf="@+id/ivEditSchedule" android:layout_marginTop="8dp"
+				app:layout_constraintBottom_toBottomOf="@+id/ivEditSchedule" android:layout_marginBottom="8dp"
+				app:layout_constraintEnd_toStartOf="@+id/ivEditSchedule" android:layout_marginEnd="8dp"/>
+		<ImageView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" app:srcCompat="@android:drawable/ic_menu_edit"
+				android:id="@+id/ivEditSchedule"
+				android:clickable="true"
+				android:focusable="true"
+				app:layout_constraintTop_toBottomOf="@+id/tvCleanFilesInfo"
+				app:layout_constraintEnd_toStartOf="@+id/ivRemoveSchedule" android:layout_marginEnd="8dp"
+				android:layout_marginTop="8dp"/>
+		<ImageView
+				android:layout_width="wrap_content"
+				android:clickable="true"
+				android:focusable="true"
+				android:layout_height="wrap_content" app:srcCompat="@android:drawable/ic_menu_delete"
+				android:id="@+id/ivRemoveSchedule" android:layout_marginTop="8dp"
+				app:layout_constraintTop_toBottomOf="@+id/tvCleanFilesInfo"
+				app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"/>
 	</android.support.constraint.ConstraintLayout>
 
 

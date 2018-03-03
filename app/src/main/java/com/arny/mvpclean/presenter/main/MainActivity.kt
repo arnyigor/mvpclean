@@ -1,6 +1,7 @@
 package com.arny.mvpclean.presenter.main
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Environment
 import android.support.v4.app.ActivityCompat
@@ -16,7 +17,9 @@ import com.arny.arnylib.utils.BasePermissions
 import com.arny.arnylib.utils.confirmDialog
 import com.arny.mvpclean.R
 import com.arny.mvpclean.data.models.CleanFolder
+import com.arny.mvpclean.data.models.ScheduleData
 import com.arny.mvpclean.presenter.base.BaseMvpActivity
+import com.arny.mvpclean.presenter.schedule.ScheduleCleanDialog
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 
@@ -38,6 +41,18 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                     override fun onCancel() {
                     }
                 })
+            }
+            R.id.ivEditSchedule->{
+                val dialog = ScheduleCleanDialog(this, object : ScheduleCleanDialog.OnSheduleListener {
+                    override fun onSheduleSet(scheduleData: ScheduleData?) {
+                        tvSchedule.text = "Расписание:Время-${scheduleData?.time} Периодически:${scheduleData?.isRepeat}"
+                        mPresenter.setSchedule(scheduleData)
+                    }
+                } )
+                dialog.show()
+            }
+            R.id.ivRemoveSchedule->{
+                mPresenter.setSchedule(ScheduleData())
             }
         }
     }
@@ -94,6 +109,8 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         setUpList()
         mPresenter.loadList()
         btnClean.setOnClickListener(this)
+        ivEditSchedule.setOnClickListener(this)
+        ivRemoveSchedule.setOnClickListener(this)
     }
 
     override fun onResume() {

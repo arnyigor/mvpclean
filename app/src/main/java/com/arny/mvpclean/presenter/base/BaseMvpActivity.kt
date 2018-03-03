@@ -6,8 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.arny.arnylib.utils.ToastMaker
 
-abstract class BaseMvpActivity<in V : BaseMvpView, T : BaseMvpPresenter<V>>
-    : AppCompatActivity(), BaseMvpView {
+abstract class BaseMvpActivity<in V : BaseMvpView, T : BaseMvpPresenter<V>> : AppCompatActivity(), BaseMvpView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
