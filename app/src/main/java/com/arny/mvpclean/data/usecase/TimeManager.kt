@@ -1,4 +1,4 @@
-package com.arny.mvpclean.data.repository.utils
+package com.arny.mvpclean.data.usecase
 
 import org.joda.time.DateTime
 

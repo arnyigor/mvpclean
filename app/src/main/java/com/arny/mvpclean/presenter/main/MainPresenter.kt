@@ -1,48 +1,69 @@
 package com.arny.mvpclean.presenter.main
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
+import android.support.v4.content.LocalBroadcastManager
+import android.util.Log
+import androidx.content.systemService
 import com.arny.arnylib.files.FileUtils
+import com.arny.arnylib.utils.DroidUtils
 import com.arny.arnylib.utils.Stopwatch
 import com.arny.arnylib.utils.Utility
-import com.arny.mvpclean.CleanApp
 import com.arny.mvpclean.data.models.CleanFolder
+import com.arny.mvpclean.data.models.ScheduleData
 import com.arny.mvpclean.data.repository.main.addFolderToClean
 import com.arny.mvpclean.data.repository.main.getList
 import com.arny.mvpclean.data.repository.main.removeFolder
+import com.arny.mvpclean.data.usecase.getTimeDiff
+import com.arny.mvpclean.data.usecase.UpdateManager
 import com.arny.mvpclean.presenter.base.BaseMvpPresenterImpl
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import java.io.File
-import android.os.SystemClock
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Intent
-import androidx.content.systemService
-import com.arny.mvpclean.data.models.ScheduleData
-import com.arny.mvpclean.data.repository.utils.UpdateManager
-import com.arny.mvpclean.data.repository.utils.getTimeDiff
 import java.util.*
+import com.arny.arnylib.utils.DateTimeUtils
 
 
 class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Presenter {
+    private var folders: ArrayList<CleanFolder> = ArrayList<CleanFolder>()
+    private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(ctx: Context?, intent: Intent?) {
+            Log.d("MainPresenter", "intent: ${DroidUtils.dumpIntent(intent)}")
+            val updated = intent?.getBooleanExtra(UpdateManager.INTENT_UPDATE_MANAGER_STATE_UPDATED, false) ?: false
+            if (updated) {
+                loadList()
+            }
+        }
+    }
+
     override fun setSchedule(scheduleData: ScheduleData?) {
         val work = scheduleData?.isWork ?: false
-        val alarmManager = mContext.systemService<AlarmManager>()
-        val pi = PendingIntent.getBroadcast(mContext, 0,
-                Intent(mContext, UpdateManager::class.java), PendingIntent.FLAG_UPDATE_CURRENT)
+        val alarmManager = context.systemService<AlarmManager>()
+        val pi = PendingIntent.getBroadcast(context, 0,
+                Intent(context, UpdateManager::class.java), PendingIntent.FLAG_UPDATE_CURRENT)
         if (work) {
             val time = scheduleData?.time
             val calendar = Calendar.getInstance()
             val diff = time?.let { getTimeDiff(it, calendar.timeInMillis) } ?: 0
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis + diff, pi)
-            // Restart alarm if device is rebooted
-//            val receiver = ComponentName(mContext, BootReceiver::class.java)
-//            val pm = mContext.packageManager
-//        pm.setComponentEnabledSetting(receiver,
-//                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-//                PackageManager.DONT_KILL_APP)
+            val triggerTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                alarmManager.nextAlarmClock.triggerTime
+            } else {
+                val string = Settings.System.getString(context.contentResolver, Settings.System.NEXT_ALARM_FORMATTED)
+                println("string:$string")
+                val timeStringToLong = DateTimeUtils.convertTimeStringToLong(string)
+                timeStringToLong//TODO проверить
+            }
+            val dateTime = DateTimeUtils.getDateTime(triggerTime)
+            println("dateTime:$dateTime")
         } else {
             alarmManager.cancel(pi)
         }
@@ -63,15 +84,13 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
                     mView?.updateList()
                     calcTotalSize()
                 })
-
-
     }
 
     override fun cleanFolders() {
         val stopwatch = Stopwatch()
         stopwatch.start()
         Utility.mainThreadObservable(
-                getList(mContext)
+                getList(context)
                         ?.map { folderFiles ->
                             for (folderFile in folderFiles) {
                                 val rem = FileUtils.deleteFile(File(folderFile.path))
@@ -99,7 +118,7 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
     override fun removeFolderItem(position: Int, list: ArrayList<CleanFolder>) {
         this.folders = list
         Utility.mainThreadObservable(Observable.fromCallable {
-            folders[position].id?.let { removeFolder(mContext, it) } ?: false
+            folders[position].id?.let { removeFolder(context, it) } ?: false
         })
                 .subscribe({ del ->
                     if (del) {
@@ -113,20 +132,16 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
                 })
     }
 
-    private var mContext: Context = mView?.getContext() ?: CleanApp.getContext()
-    private var folders: ArrayList<CleanFolder> = ArrayList<CleanFolder>()
-
-
     private fun checkPathNotFound(list: MutableList<CleanFolder>, path: String): Boolean {
         return list.find { it.path == path } == null
     }
 
     override fun addFolder(folder: File) {
-        Utility.mainThreadObservable(Observable.zip(getList(mContext), Observable.fromCallable { folder.absolutePath }, BiFunction<MutableList<CleanFolder>, String, Boolean> { list, path -> checkPathNotFound(list, path) })
+        Utility.mainThreadObservable(Observable.zip(getList(context), Observable.fromCallable { folder.absolutePath }, BiFunction<MutableList<CleanFolder>, String, Boolean> { list, path -> checkPathNotFound(list, path) })
                 .flatMap({ check ->
                     if (check) {
                         Observable.fromCallable({
-                            addFolderToClean(mContext, folder.absolutePath)
+                            addFolderToClean(context, folder.absolutePath)
                         })
                     } else {
                         Handler(Looper.getMainLooper()).post({
@@ -168,7 +183,7 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
     }
 
     override fun loadList() {
-        Utility.mainThreadObservable(getList(mContext)
+        Utility.mainThreadObservable(getList(context)
                 ?.map { it -> it as ArrayList })
                 .subscribe({
                     this.folders = it
@@ -179,6 +194,18 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
                     it.printStackTrace()
                     mView?.showError(it.message)
                 })
+    }
+
+    override fun attachView(mvpView: MainContract.View) {
+        super.attachView(mvpView)
+        val filter = IntentFilter(UpdateManager.INTENT_UPDATE_MANAGER_STATE)
+        filter.addCategory(Intent.CATEGORY_DEFAULT)
+        LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, filter)
+    }
+
+    override fun detachView() {
+        super.detachView()
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver)
     }
 
 }

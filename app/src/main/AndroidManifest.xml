@@ -24,7 +24,7 @@
 
 
 		<receiver
-				android:name=".data.repository.utils.UpdateManager">
+				android:name=".data.usecase.UpdateManager">
 		</receiver>
 
 	</application>

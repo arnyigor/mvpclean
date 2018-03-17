@@ -1,9 +1,10 @@
-package com.arny.mvpclean.data.repository.utils
+package com.arny.mvpclean.data.usecase
 
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.support.v4.content.LocalBroadcastManager
 import com.arny.arnylib.files.FileUtils
 import com.arny.arnylib.utils.DateTimeUtils.getDateTime
 import com.arny.arnylib.utils.Stopwatch
@@ -14,6 +15,11 @@ import java.io.File
 
 
 class UpdateManager : BroadcastReceiver() {
+    companion object {
+        val INTENT_UPDATE_MANAGER_STATE = "intent_update_manager_state"
+        val INTENT_UPDATE_MANAGER_STATE_UPDATED = "intent_update_manager_state_updated"
+    }
+
     override fun onReceive(context: Context, intent: Intent) {
         println("LOG UpdateManager onReceive time ${getDateTime()}")
         val stopwatch = Stopwatch()
@@ -34,7 +40,11 @@ class UpdateManager : BroadcastReceiver() {
         ).subscribe({ aBoolean ->
             println("UpdateManager onReceive $aBoolean")
             if (aBoolean) {
-                ToastMaker.toastSuccess(context, "Файлы не удалены")
+                ToastMaker.toastSuccess(context, "Файлы удалены")
+                val updateIntent = Intent(INTENT_UPDATE_MANAGER_STATE)
+                updateIntent.addCategory(Intent.CATEGORY_DEFAULT)
+                updateIntent.putExtra(INTENT_UPDATE_MANAGER_STATE_UPDATED, true)
+                LocalBroadcastManager.getInstance(context).sendBroadcast(updateIntent)
             } else {
                 ToastMaker.toastError(context, "Файлы не удалены")
             }

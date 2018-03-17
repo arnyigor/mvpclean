@@ -1,4 +1,4 @@
-package com.arny.mvpclean.data.repository.utils
+package com.arny.mvpclean.data.usecase
 
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -9,8 +9,6 @@ import android.content.pm.PackageManager
 class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-
-
         rebootManager(context)
     }
 

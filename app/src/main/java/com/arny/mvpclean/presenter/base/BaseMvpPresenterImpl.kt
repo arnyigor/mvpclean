@@ -1,7 +1,10 @@
 package com.arny.mvpclean.presenter.base
 
-open class BaseMvpPresenterImpl<V : BaseMvpView> : BaseMvpPresenter<V> {
+import android.content.Context
+import com.arny.mvpclean.CleanApp
 
+open class BaseMvpPresenterImpl<V : BaseMvpView> : BaseMvpPresenter<V> {
+    protected var context: Context =  CleanApp.getContext()
     protected var mView: V? = null
 
     override fun attachView(mvpView: V) {
