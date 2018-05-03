@@ -4,12 +4,19 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 import com.facebook.stetho.Stetho;
-public class CleanApp extends Application {
+import dagger.android.AndroidInjector;
+import dagger.android.DaggerApplication;
+public class CleanApp extends DaggerApplication {
 
 	private static Context context;
 
 	public static Context getContext() {
 		return context;
+	}
+
+	@Override
+	protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
+		return DaggerAppComponent.builder().application(this).build();
 	}
 
 	@Override

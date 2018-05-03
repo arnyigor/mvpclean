@@ -1,7 +1,6 @@
 package com.arny.mvpclean.presenter.main
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Environment
 import android.support.v4.app.ActivityCompat

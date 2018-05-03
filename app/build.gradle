@@ -30,54 +30,41 @@ android {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compile project(path: ':arnylib')
-    implementation libraries.multidex
-    implementation libraries.kotlinStd
-    implementation libraries.kotlinKtx
-/*support*/
-    implementation libraries.support
-    implementation libraries.supportAppCompat
-    implementation libraries.supportDesign
-    implementation libraries.supportCardView
-    implementation libraries.supportPreference
-    implementation libraries.supportRecyclerview
-    implementation libraries.constraint
-    /*network*/
-    implementation libraries.okHttp
-    implementation libraries.retrofit
-    implementation libraries.gson
-    implementation libraries.retrofitGsonConverter
-    implementation libraries.retrofitRxJavaAdapter
-    /*UI*/
-    implementation libraries.glide
-    annotationProcessor libraries.glideCompiler
-    /*ROOM DB*/
-    implementation libraries.roomRuntime
-    kapt libraries.roomCompiler
-    annotationProcessor libraries.roomCompiler
-    implementation libraries.roomRxjava
-    // Developer Tools
-    debugCompile libraries.okHttpLoggingInterceptor
-    debugCompile libraries.stetho
-    debugCompile libraries.stethoOkHttp
-    /*RX*/
-    implementation libraries.rxJava
-    implementation libraries.rxAndroid
-    implementation 'joda-time:joda-time:2.9.9'
-    implementation 'com.afollestad.material-dialogs:core:0.9.5.0'
-    implementation 'com.afollestad.material-dialogs:commons:0.9.5.0'
-    implementation 'com.redmadrobot:inputmask:2.3.0'
+    compile "com.android.support:multidex:1.0.3"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    /*support*/
+    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    compile "com.android.support:design:$rootProject.supportLibraryVersion"
+    compile "com.android.support:recyclerview-v7:$rootProject.supportLibraryVersion"
+    compile "com.android.support:preference-v7:$rootProject.supportLibraryVersion"
+    compile "com.android.support:cardview-v7:$rootProject.supportLibraryVersion"
+    compile "com.android.support:support-v4:$rootProject.supportLibraryVersion"
+    compile "com.android.support.constraint:constraint-layout:1.1.0"
+    //di
+    annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
+    provided 'org.glassfish:javax.annotation:10.0-b28'
+    compile "com.google.dagger:dagger:$rootProject.daggerVersion"
+    compile "com.google.dagger:dagger-android:$rootProject.daggerVersion"
+    compile "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
+    annotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
     // Tests
     testImplementation 'org.json:json:20140107'
-    testImplementation libraries.junit
-    testImplementation libraries.assertjCore
-    androidTestCompile libraries.assertjAndroid
-    androidTestCompile libraries.assertjSupport
-    testImplementation libraries.mockito
-    testImplementation libraries.mockitoAndroid
-    testImplementation libraries.robolectric
+    testImplementation "org.robolectric:robolectric:3.8"
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.assertj:assertj-core:3.6.2'
+    androidTestCompile 'com.squareup.assertj:assertj-android:1.2.0'
+    androidTestCompile 'com.squareup.assertj:assertj-android-support-v4:1.2.0'
+    testCompile  'org.mockito:mockito-core:2.15.0'
+    androidTestCompile  'org.mockito:mockito-android:2.7.22'
+    androidTestCompile 'com.android.support.test:runner:1.0.2'
+    androidTestCompile 'com.android.support.test:rules:1.0.2'
+
 }

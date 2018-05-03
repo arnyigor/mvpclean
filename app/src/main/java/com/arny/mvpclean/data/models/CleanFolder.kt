@@ -5,8 +5,6 @@ import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
 
-import java.util.UUID
-
 @Entity(tableName = "folders")
 data class CleanFolder(@PrimaryKey(autoGenerate = true) @ColumnInfo(name = "_id") var id: Long? = null) {
     @Ignore

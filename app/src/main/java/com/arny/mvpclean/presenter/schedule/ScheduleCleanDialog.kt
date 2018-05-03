@@ -1,8 +1,6 @@
 package com.arny.mvpclean.presenter.schedule
 
 import android.content.Context
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
