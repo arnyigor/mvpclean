@@ -17,8 +17,8 @@ import java.io.File
 class UpdateManager : BroadcastReceiver() {
     private val repository = MainRepository()
     companion object {
-        val INTENT_UPDATE_MANAGER_STATE = "intent_update_manager_state"
-        val INTENT_UPDATE_MANAGER_STATE_UPDATED = "intent_update_manager_state_updated"
+        const val INTENT_UPDATE_MANAGER_STATE = "intent_update_manager_state"
+        const val INTENT_UPDATE_MANAGER_STATE_UPDATED = "intent_update_manager_state_updated"
     }
 
     override fun onReceive(context: Context, intent: Intent) {

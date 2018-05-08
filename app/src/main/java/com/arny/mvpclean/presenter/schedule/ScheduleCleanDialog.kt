@@ -54,6 +54,7 @@ class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnShe
         if (editTime != null) {
             dateTimeListener = MaskedTextChangedListener(
                     "[00]:[00]",
+                    emptyList(),
                     false,
                     editTime!!,
                     null, null)
