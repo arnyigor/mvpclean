@@ -4,7 +4,7 @@ import android.content.Context
 import com.arny.mvpclean.CleanApp
 import com.arny.mvpclean.data.repository.main.MainDB
 import com.arny.mvpclean.data.repository.main.MainRepository
-import com.arny.mvpclean.data.usecase.UpdateManager
+import com.arny.mvpclean.data.utils.UpdateManager
 import com.arny.mvpclean.di.modules.AndroidModule
 import com.arny.mvpclean.presenter.main.MainPresenter
 import dagger.Component

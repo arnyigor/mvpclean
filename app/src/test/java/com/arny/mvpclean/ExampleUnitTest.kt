@@ -1,6 +1,6 @@
 package com.arny.mvpclean
 
-import com.arny.mvpclean.data.usecase.getTimeDiff
+import com.arny.mvpclean.data.utils.getTimeDiff
 import org.assertj.core.api.Assertions.assertThat
 import org.joda.time.DateTime
 import org.junit.Test

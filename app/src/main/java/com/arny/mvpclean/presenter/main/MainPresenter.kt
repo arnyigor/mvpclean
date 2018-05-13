@@ -11,16 +11,15 @@ import android.os.Looper
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import com.arny.arnylib.files.FileUtils
-import com.arny.arnylib.utils.DateTimeUtils
+import com.arny.arnylib.presenter.base.BaseMvpPresenterImpl
 import com.arny.arnylib.utils.DroidUtils
 import com.arny.arnylib.utils.Stopwatch
 import com.arny.arnylib.utils.Utility
 import com.arny.mvpclean.data.models.CleanFolder
 import com.arny.mvpclean.data.models.ScheduleData
 import com.arny.mvpclean.data.repository.main.MainRepository
-import com.arny.mvpclean.data.usecase.UpdateManager
-import com.arny.mvpclean.data.usecase.getTimeDiff
-import com.arny.mvpclean.presenter.base.BaseMvpPresenterImpl
+import com.arny.mvpclean.data.utils.UpdateManager
+import com.arny.mvpclean.data.utils.getTimeDiff
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import java.io.File
@@ -131,7 +130,7 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
                         })
                     } else {
                         Handler(Looper.getMainLooper()).post({
-                            mView?.toastError("Папка уже существует в списке")
+                            mView?.showError("Папка уже существует в списке")
                         })
                         Observable.fromCallable { false }
                     }

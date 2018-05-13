@@ -1,9 +1,9 @@
 package com.arny.mvpclean.presenter.main
 
+import com.arny.arnylib.presenter.base.BaseMvpPresenter
+import com.arny.arnylib.presenter.base.BaseMvpView
 import com.arny.mvpclean.data.models.CleanFolder
 import com.arny.mvpclean.data.models.ScheduleData
-import com.arny.mvpclean.presenter.base.BaseMvpPresenter
-import com.arny.mvpclean.presenter.base.BaseMvpView
 import java.io.File
 
 object MainContract {
@@ -16,6 +16,7 @@ object MainContract {
         fun updateInfo(text: String)
         fun showMessage(message: String)
         fun updateBtn(enable: Boolean)
+        fun toastSuccess(message: String)
     }
 
     interface Presenter : BaseMvpPresenter<View> {

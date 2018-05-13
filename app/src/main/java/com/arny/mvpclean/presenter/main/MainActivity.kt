@@ -12,18 +12,23 @@ import android.view.View
 import com.afollestad.materialdialogs.folderselector.FolderChooserDialog
 import com.arny.arnylib.adapters.SimpleBindableAdapter
 import com.arny.arnylib.interfaces.ConfirmDialogListener
+import com.arny.arnylib.presenter.base.BaseMvpActivity
 import com.arny.arnylib.utils.BasePermissions
+import com.arny.arnylib.utils.ToastMaker
 import com.arny.arnylib.utils.confirmDialog
 import com.arny.mvpclean.R
 import com.arny.mvpclean.data.models.CleanFolder
 import com.arny.mvpclean.data.models.ScheduleData
-import com.arny.mvpclean.presenter.base.BaseMvpActivity
 import com.arny.mvpclean.presenter.schedule.ScheduleCleanDialog
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 
 
 class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainContract.View, FolderChooserDialog.FolderCallback, View.OnClickListener {
+
+    override fun toastSuccess(message: String) {
+        ToastMaker.toastSuccess(this,message)
+    }
 
     override fun updateBtn(enable: Boolean) {
         btnClean.isEnabled = enable
@@ -54,10 +59,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                 mPresenter.setSchedule(ScheduleData())
             }
         }
-    }
-
-    override fun showError(error: String?) {
-        tvCleanFilesInfo.text = error
     }
 
     override fun showMessage(message: String) {
@@ -98,7 +99,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     }
 
     private var adapter: SimpleBindableAdapter<CleanFolder, MainListHolder>? = null
-    override var mPresenter: MainPresenter = MainPresenter()
+    override val mPresenter = MainPresenter()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
