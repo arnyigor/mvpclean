@@ -73,12 +73,6 @@ dependencies {
     kapt  "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
     implementation "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
     kapt  "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
-//
-//
-//    compile "com.google.dagger:dagger:$rootProject.daggerVersion"
-//    compile "com.google.dagger:dagger-android:$rootProject.daggerVersion"
-//    compile "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
-//    annotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
     //custom
     compile 'com.redmadrobot:inputmask:3.3.0'
 
