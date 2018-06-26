@@ -10,6 +10,8 @@ import android.os.Handler
 import android.os.Looper
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
+import android.util.TimeUtils
+import androidx.work.*
 import com.arny.arnylib.files.FileUtils
 import com.arny.arnylib.presenter.base.BaseMvpPresenterImpl
 import com.arny.arnylib.utils.DroidUtils
@@ -24,10 +26,13 @@ import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import java.io.File
 import java.util.*
+import com.arny.mvpclean.data.worker.ClearFolderWorker
+import java.util.concurrent.TimeUnit
 
 
 class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Presenter {
     private var folders: ArrayList<CleanFolder> = ArrayList()
+
     private val repository = MainRepository()
     private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(ctx: Context?, intent: Intent?) {
@@ -40,19 +45,35 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
     }
 
     override fun setSchedule(scheduleData: ScheduleData?) {
+//        val work = scheduleData?.isWork ?: false
+//        val alarmManager = repository.getContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager;
+//        val pi = PendingIntent.getBroadcast(repository.getContext(), 0,
+//                Intent(repository.getContext(), UpdateManager::class.java), PendingIntent.FLAG_UPDATE_CURRENT)
+//        if (work) {
+//            val time = scheduleData?.time
+//            val calendar = Calendar.getInstance()
+//            val diff = time?.let { getTimeDiff(it, calendar.timeInMillis) } ?: 0
+//            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis + diff, pi)
+//        } else {
+//            alarmManager.cancel(pi)
+//        }
         val work = scheduleData?.isWork ?: false
-        val alarmManager = repository.getContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager;
-        val pi = PendingIntent.getBroadcast(repository.getContext(), 0,
-                Intent(repository.getContext(), UpdateManager::class.java), PendingIntent.FLAG_UPDATE_CURRENT)
         if (work) {
-            val time = scheduleData?.time
-            val calendar = Calendar.getInstance()
-            val diff = time?.let { getTimeDiff(it, calendar.timeInMillis) } ?: 0
-            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis + diff, pi)
+            val myConstrains = Constraints.Builder()
+                    .setRequiresStorageNotLow(false)
+                    .setRequiresCharging(false)
+                    .build()
+            val managerTag = "12345"
+            val periodicWorkRequest = PeriodicWorkRequestBuilder<ClearFolderWorker>(1, TimeUnit.MINUTES)
+                    .setConstraints(myConstrains)
+                    .addTag(managerTag)
+                    .build()
+            repository.setPrefString("work_manager_tag", managerTag)
+            WorkManager.getInstance()?.enqueue(periodicWorkRequest)
         } else {
-            alarmManager.cancel(pi)
+            val tag = repository.getPrefString("work_manager_tag")
+            tag?.let { WorkManager.getInstance()?.cancelAllWorkByTag(it) }
         }
-
     }
 
     override fun updateFoldersSize(list: ArrayList<CleanFolder>) {
@@ -64,39 +85,28 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
                     }
                     it
                 })
-                .subscribe({
+                .subscribe {
                     this.folders = it
                     mView?.updateList()
                     calcTotalSize()
-                })
+                }
     }
 
     override fun cleanFolders() {
         val stopwatch = Stopwatch()
         stopwatch.start()
         Utility.mainThreadObservable(
-                repository.getList()
-                        ?.map { folderFiles ->
-                            for (folderFile in folderFiles) {
-                                val rem = FileUtils.deleteFile(File(folderFile.path))
-                                if (!rem) {
-                                    stopwatch.stop()
-                                    return@map false
-                                }
-                            }
-                            stopwatch.stop()
-                            true
-                        }
+                repository.clearFolders(stopwatch)
         ).subscribe({ aBoolean ->
             if (aBoolean) {
                 mView?.toastSuccess("Файлы удалены за ${stopwatch.elapsedTimeMili} мс")
                 loadList()
             } else {
-                mView?.showError("Файлы не удалены")
+                mView?.toastError("Файлы не удалены")
             }
         }, {
             it.printStackTrace()
-            mView?.showError("Файлы не удалены:${it.message}")
+            mView?.toastError("Файлы не удалены:${it.message}")
         })
     }
 
@@ -113,7 +123,7 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
                     }
                 }, {
                     it.printStackTrace()
-                    mView?.showError(it.message)
+                    mView?.toastError(it.message)
                 })
     }
 
@@ -123,23 +133,23 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
 
     override fun addFolder(folder: File) {
         Utility.mainThreadObservable(Observable.zip(repository.getList(), Observable.fromCallable { folder.absolutePath }, BiFunction<MutableList<CleanFolder>, String, Boolean> { list, path -> checkPathNotFound(list, path) })
-                .flatMap({ check ->
+                .flatMap { check ->
                     if (check) {
-                        Observable.fromCallable({
+                        Observable.fromCallable {
                             repository.addFolderToClean(folder.absolutePath)
-                        })
+                        }
                     } else {
-                        Handler(Looper.getMainLooper()).post({
-                            mView?.showError("Папка уже существует в списке")
-                        })
+                        Handler(Looper.getMainLooper()).post {
+                            mView?.toastError("Папка уже существует в списке")
+                        }
                         Observable.fromCallable { false }
                     }
-                })
+                }
                 .map { save ->
                     if (!save) {
-                        Handler(Looper.getMainLooper()).post({
-                            mView?.showError("Папка не добавлена")
-                        })
+                        Handler(Looper.getMainLooper()).post {
+                            mView?.toastError("Папка не добавлена")
+                        }
                     }
                     save
                 }
@@ -156,7 +166,7 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
                     }
                 }, {
                     it.printStackTrace()
-                    mView?.showError(it.message)
+                    mView?.toastError(it.message)
                 })
     }
 
@@ -177,7 +187,7 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
                     calcTotalSize()
                 }, {
                     it.printStackTrace()
-                    mView?.showError(it.message)
+                    mView?.toastError(it.message)
                 })
     }
 

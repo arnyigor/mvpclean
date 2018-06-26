@@ -39,7 +39,7 @@ class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnShe
         editTime = view.findViewById(R.id.editTime)
         checkWeeks = view.findViewById(R.id.checkWeeks)
         super.setCancelable(false)
-        super.setPositiveButton("ОК", { _, i ->
+        super.setPositiveButton("ОК") { _, i ->
             scheduleData = ScheduleData()
             scheduleData?.isWork = true
             scheduleData?.time = editTime?.text.toString()
@@ -49,7 +49,7 @@ class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnShe
             scheduleData?.periodType = periodType
             scheduleData?.weekDays = weekDaysSelected
             onSheduleListener.onSheduleSet(scheduleData)
-        })
+        }
         super.setNegativeButton("Отмена", { _, _ -> })
         if (editTime != null) {
             dateTimeListener = MaskedTextChangedListener(
@@ -73,7 +73,7 @@ class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnShe
     override fun updateDialogView() {
         time = editTime?.text.toString()
         count = editRepeatCount?.text.toString().toInt()
-        checkRepeat?.setOnCheckedChangeListener({ _, checked ->
+        checkRepeat?.setOnCheckedChangeListener { _, checked ->
             val enabl = if (checked) "вкл" else "выкл"
             checkRepeat?.text = "Повтор $enabl"
             if (checked) {
@@ -81,7 +81,7 @@ class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnShe
                 editRepeatCount?.isEnabled = true
                 spinnerRepeatType?.isEnabled = true
             }
-        })
+        }
         spinnerRepeatType?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }
@@ -90,7 +90,7 @@ class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnShe
                 periodType = position
             }
         }
-        checkWeeks?.setOnCheckedChangeListener({ _, checked ->
+        checkWeeks?.setOnCheckedChangeListener { _, checked ->
             if (checked) {
                 editRepeatCount?.isEnabled = false
                 spinnerRepeatType?.isEnabled = false
@@ -111,7 +111,7 @@ class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnShe
                     checkWeeks?.text = "Дни недели $wDays"
                 })
             }
-        })
+        }
 
     }
 }
