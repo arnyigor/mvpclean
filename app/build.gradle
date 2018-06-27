@@ -12,10 +12,8 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary true
-        }
     }
     buildTypes {
         release {
@@ -38,14 +36,10 @@ android {
             returnDefaultValues = true
         }
     }
-
-    dexOptions {
-        incremental true
-    }
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     compile project(path: ':arnylib')
     compile 'com.android.support:multidex:1.0.3'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
@@ -61,8 +55,6 @@ dependencies {
     androidTestCompile 'org.mockito:mockito-android:2.7.22'
     androidTestCompile 'com.android.support.test:runner:1.0.2'
     androidTestCompile 'com.android.support.test:rules:1.0.2'
-    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.rxandroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rootProject.rxjavaVersion"
     /*support*/
     compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
     compile "com.android.support:design:$rootProject.supportLibraryVersion"
@@ -71,13 +63,13 @@ dependencies {
     compile "com.android.support:cardview-v7:$rootProject.supportLibraryVersion"
     compile "com.android.support:support-v4:$rootProject.supportLibraryVersion"
     compile "com.android.support.constraint:constraint-layout:$rootProject.constraintVersion"
-    implementation 'com.facebook.stetho:stetho:1.5.0'
-    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
+
     /*ROOM DB*/
     implementation "android.arch.persistence.room:runtime:$rootProject.archRoomVersion"
     kapt "android.arch.persistence.room:compiler:$rootProject.archRoomVersion"
     annotationProcessor "android.arch.persistence.room:compiler:$rootProject.archRoomVersion"
     implementation "android.arch.persistence.room:rxjava2:$rootProject.archRoomVersion"
+
     //di
     annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
     provided 'org.glassfish:javax.annotation:10.0-b28'
@@ -88,9 +80,13 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
     kapt "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
     //workmanager
-    implementation "android.arch.work:work-runtime-ktx:$rootProject.workVersion" // use -ktx for Kotlin
-    implementation "android.arch.work:work-firebase:$rootProject.workVersion"//optional - Firebase JobDispatcher support
-    androidTestImplementation "android.arch.work:work-testing:$rootProject.workVersion"// Test helpers
+    implementation "android.arch.work:work-runtime-ktx:$rootProject.workVersion"
+    // use -ktx for Kotlin
+    implementation "android.arch.work:work-firebase:$rootProject.workVersion"
+    //optional - Firebase JobDispatcher support
+    androidTestImplementation "android.arch.work:work-testing:$rootProject.workVersion"
+    compile 'com.facebook.stetho:stetho:1.5.0'
+    compile 'com.facebook.stetho:stetho-okhttp3:1.5.0'
     //custom
     compile 'com.redmadrobot:inputmask:3.3.0'
 }

@@ -34,7 +34,7 @@ ext {
     archRoomVersion = '1.1.1'
     daggerVersion= '2.15'
     constraintVersion= '1.1.2'
-    rxjavaVersion= '2.1.13'
+    rxjavaVersion= '2.1.16'
     rxandroidVersion= '2.0.2'
     rxbindingVersion= '2.1.1'
     retrofit2Version= '2.3.0'

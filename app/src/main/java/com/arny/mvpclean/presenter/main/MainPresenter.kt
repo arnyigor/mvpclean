@@ -2,6 +2,7 @@ package com.arny.mvpclean.presenter.main
 
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.arch.lifecycle.LifecycleOwner
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
