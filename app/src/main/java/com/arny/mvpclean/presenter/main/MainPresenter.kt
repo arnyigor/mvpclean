@@ -13,6 +13,7 @@ import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import android.util.TimeUtils
 import androidx.work.*
+import androidx.work.PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS
 import com.arny.arnylib.files.FileUtils
 import com.arny.arnylib.presenter.base.BaseMvpPresenterImpl
 import com.arny.arnylib.utils.DroidUtils
@@ -46,34 +47,22 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
     }
 
     override fun setSchedule(scheduleData: ScheduleData?) {
-//        val work = scheduleData?.isWork ?: false
-//        val alarmManager = repository.getContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager;
-//        val pi = PendingIntent.getBroadcast(repository.getContext(), 0,
-//                Intent(repository.getContext(), UpdateManager::class.java), PendingIntent.FLAG_UPDATE_CURRENT)
-//        if (work) {
-//            val time = scheduleData?.time
-//            val calendar = Calendar.getInstance()
-//            val diff = time?.let { getTimeDiff(it, calendar.timeInMillis) } ?: 0
-//            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis + diff, pi)
-//        } else {
-//            alarmManager.cancel(pi)
-//        }
         val work = scheduleData?.isWork ?: false
         if (work) {
-            val myConstrains = Constraints.Builder()
-                    .setRequiresStorageNotLow(false)
-                    .setRequiresCharging(false)
-                    .build()
+//            val myConstrains = Constraints.Builder()
+//                    .setRequiresStorageNotLow(false)
+//                    .setRequiresCharging(false)
+//                    .build()
             val managerTag = "12345"
-            val periodicWorkRequest = PeriodicWorkRequestBuilder<ClearFolderWorker>(1, TimeUnit.MINUTES)
-                    .setConstraints(myConstrains)
+            val periodicWorkRequest = PeriodicWorkRequestBuilder<ClearFolderWorker>(MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS)
+//                    .setConstraints(myConstrains)
                     .addTag(managerTag)
                     .build()
             repository.setPrefString("work_manager_tag", managerTag)
             WorkManager.getInstance()?.enqueue(periodicWorkRequest)
         } else {
             val tag = repository.getPrefString("work_manager_tag")
-            tag?.let { WorkManager.getInstance()?.cancelAllWorkByTag(it) }
+            tag?.let { WorkManager.getInstance()?.cancelAllWork()}
         }
     }
 

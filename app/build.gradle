@@ -81,10 +81,6 @@ dependencies {
     kapt "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
     //workmanager
     implementation "android.arch.work:work-runtime-ktx:$rootProject.workVersion"
-    // use -ktx for Kotlin
-    implementation "android.arch.work:work-firebase:$rootProject.workVersion"
-    //optional - Firebase JobDispatcher support
-    androidTestImplementation "android.arch.work:work-testing:$rootProject.workVersion"
     compile 'com.facebook.stetho:stetho:1.5.0'
     compile 'com.facebook.stetho:stetho-okhttp3:1.5.0'
     //custom
