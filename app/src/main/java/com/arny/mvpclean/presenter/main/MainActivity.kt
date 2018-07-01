@@ -1,14 +1,20 @@
 package com.arny.mvpclean.presenter.main
 
 import android.Manifest
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleRegistry
+import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.os.Environment
+import android.support.annotation.NonNull
 import android.support.v4.app.ActivityCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.work.WorkManager
+import androidx.work.WorkStatus
 import com.afollestad.materialdialogs.folderselector.FolderChooserDialog
 import com.arny.arnylib.adapters.SimpleBindableAdapter
 import com.arny.arnylib.interfaces.ConfirmDialogListener
@@ -25,9 +31,9 @@ import java.io.File
 
 
 class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainContract.View, FolderChooserDialog.FolderCallback, View.OnClickListener {
-
+    private lateinit var mLifecycleRegistry: LifecycleRegistry
     override fun toastSuccess(message: String) {
-        ToastMaker.toastSuccess(this,message)
+        ToastMaker.toastSuccess(this, message)
     }
 
     override fun updateBtn(enable: Boolean) {
@@ -46,16 +52,16 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                     }
                 })
             }
-            R.id.ivEditSchedule->{
+            R.id.ivEditSchedule -> {
                 val dialog = ScheduleCleanDialog(this, object : ScheduleCleanDialog.OnSheduleListener {
                     override fun onSheduleSet(scheduleData: ScheduleData?) {
                         tvSchedule.text = "Расписание:Время-${scheduleData?.time} Периодически:${scheduleData?.isRepeat}"
                         mPresenter.setSchedule(scheduleData)
                     }
-                } )
+                })
                 dialog.show()
             }
-            R.id.ivRemoveSchedule->{
+            R.id.ivRemoveSchedule -> {
                 mPresenter.setSchedule(ScheduleData())
             }
         }
@@ -106,6 +112,8 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         title = "Очистка директорий"
+        mLifecycleRegistry = LifecycleRegistry(this);
+        mLifecycleRegistry?.markState(Lifecycle.State.CREATED);
         setUpList()
         mPresenter.loadList()
         btnClean.setOnClickListener(this)
@@ -113,9 +121,26 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         ivRemoveSchedule.setOnClickListener(this)
     }
 
+    public override fun onStart() {
+        super.onStart()
+        mLifecycleRegistry.markState(Lifecycle.State.STARTED)
+    }
+
+    @NonNull
+    override fun getLifecycle(): Lifecycle {
+        return mLifecycleRegistry
+    }
+
+
     override fun onResume() {
         super.onResume()
         adapter?.items?.let { mPresenter.updateFoldersSize(it) }
+        WorkManager.getInstance()?.getStatusesByTag("work_manager_tag")
+                ?.observe(this, Observer<MutableList<WorkStatus>> {
+                    val workStatus = it?.getOrNull(0)
+                    val finished = workStatus?.state?.isFinished?:true
+                    tvSchedule.text = "Работает " + (!finished)
+                })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

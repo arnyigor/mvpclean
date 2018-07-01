@@ -2,7 +2,9 @@ package com.arny.mvpclean.presenter.main
 
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.Observer
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -33,6 +35,7 @@ import java.util.concurrent.TimeUnit
 
 
 class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Presenter {
+
     private var folders: ArrayList<CleanFolder> = ArrayList()
 
     private val repository = MainRepository()
@@ -49,13 +52,10 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
     override fun setSchedule(scheduleData: ScheduleData?) {
         val work = scheduleData?.isWork ?: false
         if (work) {
-//            val myConstrains = Constraints.Builder()
-//                    .setRequiresStorageNotLow(false)
-//                    .setRequiresCharging(false)
-//                    .build()
             val managerTag = "12345"
-            val periodicWorkRequest = PeriodicWorkRequestBuilder<ClearFolderWorker>(MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS)
-//                    .setConstraints(myConstrains)
+            val toLong = scheduleData?.repeatPeriod?.toLong()
+            val repeatIntervalTimeUnit = scheduleData?.repeatType?:TimeUnit.HOURS
+            val periodicWorkRequest = PeriodicWorkRequestBuilder<ClearFolderWorker>(toLong ?:0, repeatIntervalTimeUnit)
                     .addTag(managerTag)
                     .build()
             repository.setPrefString("work_manager_tag", managerTag)

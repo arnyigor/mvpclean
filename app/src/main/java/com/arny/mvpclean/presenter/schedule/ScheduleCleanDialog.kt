@@ -13,19 +13,17 @@ import com.arny.arnylib.utils.checkDialog
 import com.arny.mvpclean.R
 import com.arny.mvpclean.data.models.ScheduleData
 import com.redmadrobot.inputmask.MaskedTextChangedListener
+import java.util.concurrent.TimeUnit
 
 
 class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnSheduleListener) : ADBuilder(context) {
     private var checkRepeat: CheckBox? = null
-    private var editRepeatCount: EditText? = null
     private var spinnerRepeatType: Spinner? = null
     private var editTime: EditText? = null
-    private var checkWeeks: CheckBox? = null
     private var time: String? = null
-    private var count: Int = 0
-    private var periodType: Int? = null
+    private var periodType: TimeUnit? = null
+    private var periodCount: Int = 0
     private var scheduleData: ScheduleData? = null
-    private var weekDaysSelected: Array<Int>? = null
     private var dateTimeListener: MaskedTextChangedListener? = null
 
     interface OnSheduleListener {
@@ -34,20 +32,16 @@ class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnShe
 
     override fun initUI(view: View) {
         checkRepeat = view.findViewById(R.id.checkRepeat)
-        editRepeatCount = view.findViewById(R.id.editRepeatCount)
         spinnerRepeatType = view.findViewById(R.id.spinnerRepeatType)
         editTime = view.findViewById(R.id.editTime)
-        checkWeeks = view.findViewById(R.id.checkWeeks)
         super.setCancelable(false)
         super.setPositiveButton("ОК") { _, i ->
             scheduleData = ScheduleData()
             scheduleData?.isWork = true
             scheduleData?.time = editTime?.text.toString()
             scheduleData?.isRepeat = checkRepeat?.isChecked ?: false
-            scheduleData?.isWeedDays = checkWeeks?.isChecked ?: false
-            scheduleData?.repeatPeriod = count
-            scheduleData?.periodType = periodType
-            scheduleData?.weekDays = weekDaysSelected
+            scheduleData?.repeatPeriod = periodCount
+            scheduleData?.repeatType = periodType
             onSheduleListener.onSheduleSet(scheduleData)
         }
         super.setNegativeButton("Отмена", { _, _ -> })
@@ -72,13 +66,10 @@ class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnShe
 
     override fun updateDialogView() {
         time = editTime?.text.toString()
-        count = editRepeatCount?.text.toString().toInt()
         checkRepeat?.setOnCheckedChangeListener { _, checked ->
             val enabl = if (checked) "вкл" else "выкл"
             checkRepeat?.text = "Повтор $enabl"
             if (checked) {
-                checkWeeks?.isChecked = false
-                editRepeatCount?.isEnabled = true
                 spinnerRepeatType?.isEnabled = true
             }
         }
@@ -87,31 +78,54 @@ class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnShe
             }
 
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
-                periodType = position
-            }
-        }
-        checkWeeks?.setOnCheckedChangeListener { _, checked ->
-            if (checked) {
-                editRepeatCount?.isEnabled = false
-                spinnerRepeatType?.isEnabled = false
-                checkRepeat?.isChecked = false
-                val weekDays = arrayOf("ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС")
-                checkDialog(context, "Дни недели", weekDays, dialogListener = ChoiseDialogListener {
-                    weekDaysSelected = it
-                    val wDays = StringBuilder()
-                    weekDays.forEachIndexed { index, s ->
-                        val hasIndex = weekDaysSelected?.contains(index) ?: false
-                        if (hasIndex) {
-                            wDays.append(s)
-                            if (index != weekDays.size - 1) {
-                                wDays.append(",")
-                            }
-                        }
+                when (position) {
+                    0 -> {
+                        periodCount = 15
+                        periodType = TimeUnit.MINUTES
                     }
-                    checkWeeks?.text = "Дни недели $wDays"
-                })
+                    1 -> {
+                        periodCount = 30
+                        periodType = TimeUnit.MINUTES
+                    }
+                    2 -> {
+                        periodCount = 1
+                        periodType = TimeUnit.HOURS
+                    }
+                    3 -> {
+                        periodCount = 3
+                        periodType = TimeUnit.HOURS
+                    }
+                    4 -> {
+                        periodCount = 6
+                        periodType = TimeUnit.HOURS
+                    }
+                    5 -> {
+                        periodCount = 9
+                        periodType = TimeUnit.HOURS
+                    }
+                    6 -> {
+                        periodCount = 12
+                        periodType = TimeUnit.HOURS
+                    }
+                    7 -> {
+                        periodCount = 18
+                        periodType = TimeUnit.HOURS
+                    }
+                    8 -> {
+                        periodCount = 24
+                        periodType = TimeUnit.HOURS
+                    }
+                }
             }
         }
-
     }
 }
+//<item>15мин</item>
+//<item>30мин</item>
+//<item>1 час</item>
+//<item>3 час</item>
+//<item>6 час</item>
+//<item>9 час</item>
+//<item>12 час</item>
+//<item>18 час</item>
+//<item>24 час</item>
