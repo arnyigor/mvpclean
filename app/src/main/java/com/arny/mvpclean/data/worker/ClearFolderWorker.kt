@@ -1,21 +1,30 @@
 package com.arny.mvpclean.data.worker
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.util.Log
 import androidx.work.Worker
-import com.arny.arnylib.utils.Stopwatch
-import com.arny.arnylib.utils.Utility
-import com.arny.mvpclean.data.repository.main.MainRepository
+import androidx.work.WorkerParameters
+import com.arny.mvpclean.data.repository.main.MainRepositoryImpl
+import com.arny.mvpclean.data.utils.Stopwatch
+import com.arny.mvpclean.data.utils.observeOnMain
 
 
-class ClearFolderWorker : Worker() {
-    private val repository = MainRepository()
+class ClearFolderWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
+    private val repository = MainRepositoryImpl()
+    @SuppressLint("CheckResult")
     override fun doWork(): Result {
-        try {
+        return try {
             val stopwatch = Stopwatch()
             stopwatch.start()
-            Utility.IOThreadObservable(repository.clearFolders(stopwatch)).subscribe()
-            return Result.SUCCESS
+            repository.clearFolders(stopwatch)?.subscribe({
+                Log.i(ClearFolderWorker::class.java.simpleName, "doWork: time ${stopwatch.formatTime(3)} thread:" + Thread.currentThread().name)
+            }, {
+                it.printStackTrace()
+            })
+            Result.SUCCESS
         } catch (throwable: Throwable) {
-            return Result.FAILURE
+            Result.FAILURE
         }
     }
 }

@@ -1,8 +1,6 @@
 package com.arny.mvpclean.presenter.main
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.arch.lifecycle.LifecycleOwner
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -11,33 +9,29 @@ import android.os.Handler
 import android.os.Looper
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
-import android.util.TimeUtils
-import androidx.work.*
-import com.arny.arnylib.files.FileUtils
-import com.arny.arnylib.presenter.base.BaseMvpPresenterImpl
-import com.arny.arnylib.utils.DroidUtils
-import com.arny.arnylib.utils.Stopwatch
-import com.arny.arnylib.utils.Utility
+import androidx.work.Constraints
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.arny.mvpclean.data.models.CleanFolder
 import com.arny.mvpclean.data.models.ScheduleData
-import com.arny.mvpclean.data.repository.main.MainRepository
-import com.arny.mvpclean.data.utils.UpdateManager
-import com.arny.mvpclean.data.utils.getTimeDiff
+import com.arny.mvpclean.data.repository.main.Consts
+import com.arny.mvpclean.data.repository.main.MainRepositoryImpl
+import com.arny.mvpclean.data.utils.*
+import com.arny.mvpclean.data.worker.ClearFolderWorker
+import com.arny.mvpclean.presenter.base.BaseMvpPresenterImpl
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import java.io.File
 import java.util.*
-import com.arny.mvpclean.data.worker.ClearFolderWorker
 import java.util.concurrent.TimeUnit
 
 
 class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Presenter {
     private var folders: ArrayList<CleanFolder> = ArrayList()
-
-    private val repository = MainRepository()
+    private val repository = MainRepositoryImpl.instance
     private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(ctx: Context?, intent: Intent?) {
-            Log.d("MainPresenter", "intent: ${DroidUtils.dumpIntent(intent)}")
+            Log.d("MainPresenter", "intent: ${intent.dump()}")
             val updated = intent?.getBooleanExtra(UpdateManager.INTENT_UPDATE_MANAGER_STATE_UPDATED, false) ?: false
             if (updated) {
                 loadList()
@@ -64,28 +58,42 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
                     .setRequiresStorageNotLow(false)
                     .setRequiresCharging(false)
                     .build()
-            val managerTag = "12345"
-            val periodicWorkRequest = PeriodicWorkRequestBuilder<ClearFolderWorker>(1, TimeUnit.MINUTES)
-                    .setConstraints(myConstrains)
-                    .addTag(managerTag)
-                    .build()
-            repository.setPrefString("work_manager_tag", managerTag)
-            WorkManager.getInstance()?.enqueue(periodicWorkRequest)
+            val workerTag = "12345"
+            val current = Calendar.getInstance().timeInMillis
+            val time = scheduleData?.time
+            val currentDate = DateTimeUtils.getDateTime(current, "yyyy-MM-dd")
+            val formattedDateTime = "$currentDate $time"
+            val expected = DateTimeUtils.convertTimeStringToLong(formattedDateTime, "yyyy-MM-dd HH:mm")
+            if (expected != -1L) {
+                val timeDiff = DateTimeUtils.getTimeDiff(current, expected)
+                Log.i(MainPresenter::class.java.simpleName, "setSchedule: delay:$timeDiff");
+                val workRequestBuilder = OneTimeWorkRequestBuilder<ClearFolderWorker>()
+                        .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+                        .addTag(workerTag)
+                        .build()
+                //            val periodicWorkRequest = PeriodicWorkRequestBuilder<ClearFolderWorker>(1, TimeUnit.MINUTES)
+//                    .setConstraints(myConstrains)
+//                    .addTag(workerTag)
+//                    .build()
+                repository.setPref(Consts.Global.WORK_MANAGER_TAG, workerTag)
+                WorkManager.getInstance().enqueue(workRequestBuilder)
+            }
         } else {
-            val tag = repository.getPrefString("work_manager_tag")
-            tag?.let { WorkManager.getInstance()?.cancelAllWorkByTag(it) }
+            val tag = repository.getPrefString(Consts.Global.WORK_MANAGER_TAG)
+            tag?.let { WorkManager.getInstance().cancelAllWorkByTag(it) }
         }
     }
 
-    override fun updateFoldersSize(list: ArrayList<CleanFolder>) {
-        Utility.mainThreadObservable(Observable.fromCallable { list }
+    @SuppressLint("CheckResult")
+    override fun updateFoldersSize(folders: ArrayList<CleanFolder>) {
+        Observable.fromCallable { folders }
                 .map {
                     for (cleanFolder in it) {
                         cleanFolder.title = FileUtils.getFilenameWithExtention(cleanFolder.path)
                         cleanFolder.size = FileUtils.getFolderSize(File(cleanFolder.path))
                     }
                     it
-                })
+                }.observeOnMain()
                 .subscribe {
                     this.folders = it
                     mView?.updateList()
@@ -93,29 +101,30 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
                 }
     }
 
+    @SuppressLint("CheckResult")
     override fun cleanFolders() {
         val stopwatch = Stopwatch()
         stopwatch.start()
-        Utility.mainThreadObservable(
-                repository.clearFolders(stopwatch)
-        ).subscribe({ aBoolean ->
-            if (aBoolean) {
-                mView?.toastSuccess("Файлы удалены за ${stopwatch.elapsedTimeMili} мс")
-                loadList()
-            } else {
-                mView?.toastError("Файлы не удалены")
-            }
-        }, {
-            it.printStackTrace()
-            mView?.toastError("Файлы не удалены:${it.message}")
-        })
+        repository.clearFolders(stopwatch)
+                ?.observeOnMain()?.subscribe({ aBoolean ->
+                    if (aBoolean) {
+                        mView?.toastSuccess("Файлы удалены за ${stopwatch.elapsedTimeMili} мс")
+                        loadList()
+                    } else {
+                        mView?.toastError("Файлы не удалены")
+                    }
+                }, {
+                    it.printStackTrace()
+                    mView?.toastError("Файлы не удалены:${it.message}")
+                })
     }
 
+    @SuppressLint("CheckResult")
     override fun removeFolderItem(position: Int, list: ArrayList<CleanFolder>) {
         this.folders = list
-        Utility.mainThreadObservable(Observable.fromCallable {
+        Observable.fromCallable {
             folders[position].id?.let { repository.removeFolder(it) } ?: false
-        })
+        }.observeOnMain()
                 .subscribe({ del ->
                     if (del) {
                         this.folders.removeAt(position)
@@ -132,8 +141,9 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
         return list.find { it.path == path } == null
     }
 
+    @SuppressLint("CheckResult")
     override fun addFolder(folder: File) {
-        Utility.mainThreadObservable(Observable.zip(repository.getList(), Observable.fromCallable { folder.absolutePath }, BiFunction<MutableList<CleanFolder>, String, Boolean> { list, path -> checkPathNotFound(list, path) })
+        mainThreadObservable(Observable.zip(repository.getList(), Observable.fromCallable { folder.absolutePath }, BiFunction<MutableList<CleanFolder>, String, Boolean> { list, path -> checkPathNotFound(list, path) })
                 .flatMap { check ->
                     if (check) {
                         Observable.fromCallable {
@@ -178,9 +188,9 @@ class MainPresenter : BaseMvpPresenterImpl<MainContract.View>(), MainContract.Pr
         mView?.updateBtn(folders.size != 0)
     }
 
+    @SuppressLint("CheckResult")
     override fun loadList() {
-        Utility.mainThreadObservable(repository.getList()
-                ?.map { it -> it as ArrayList })
+        repository.getList().observeOnMain()
                 .subscribe({
                     this.folders = it
                     mView?.clearList()

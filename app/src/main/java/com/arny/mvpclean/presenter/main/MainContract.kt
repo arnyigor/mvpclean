@@ -1,7 +1,7 @@
 package com.arny.mvpclean.presenter.main
 
-import com.arny.arnylib.presenter.base.BaseMvpPresenter
-import com.arny.arnylib.presenter.base.BaseMvpView
+import com.arny.mvpclean.presenter.base.BaseMvpPresenter
+import com.arny.mvpclean.presenter.base.BaseMvpView
 import com.arny.mvpclean.data.models.CleanFolder
 import com.arny.mvpclean.data.models.ScheduleData
 import java.io.File
@@ -22,7 +22,7 @@ object MainContract {
     interface Presenter : BaseMvpPresenter<View> {
         fun setSchedule(scheduleData: ScheduleData?)
         fun loadList()
-        fun removeFolderItem(position: Int, folders: ArrayList<CleanFolder>)
+        fun removeFolderItem(position: Int, list: ArrayList<CleanFolder>)
         fun calcTotalSize()
         fun addFolder(folder: File)
         fun cleanFolders()

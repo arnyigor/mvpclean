@@ -1,17 +1,15 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
-
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "com.arny.mvpclean"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
+        versionCode 100
+        versionName "1.0.0"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -21,7 +19,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            applicationIdSuffix '.debug'
             minifyEnabled false
             debuggable true
         }
@@ -40,53 +37,61 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(path: ':arnylib')
-    compile 'com.android.support:multidex:1.0.3'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     // Tests
     testImplementation 'org.json:json:20140107'
     testImplementation 'org.robolectric:robolectric:3.8'
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.assertj:assertj-core:3.6.2'
-    androidTestCompile 'com.squareup.assertj:assertj-android:1.2.0'
-    androidTestCompile 'com.squareup.assertj:assertj-android-support-v4:1.2.0'
-    testCompile 'org.mockito:mockito-core:2.15.0'
-    androidTestCompile 'org.mockito:mockito-android:2.7.22'
-    androidTestCompile 'com.android.support.test:runner:1.0.2'
-    androidTestCompile 'com.android.support.test:rules:1.0.2'
-    /*support*/
-    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
-    compile "com.android.support:design:$rootProject.supportLibraryVersion"
-    compile "com.android.support:recyclerview-v7:$rootProject.supportLibraryVersion"
-    compile "com.android.support:preference-v7:$rootProject.supportLibraryVersion"
-    compile "com.android.support:cardview-v7:$rootProject.supportLibraryVersion"
-    compile "com.android.support:support-v4:$rootProject.supportLibraryVersion"
-    compile "com.android.support.constraint:constraint-layout:$rootProject.constraintVersion"
-
+    androidTestImplementation 'com.squareup.assertj:assertj-android:1.2.0'
+    androidTestImplementation 'com.squareup.assertj:assertj-android-support-v4:1.2.0'
+    testImplementation 'org.mockito:mockito-core:2.15.0'
+    androidTestImplementation 'org.mockito:mockito-android:2.7.22'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    //support
+    implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:design:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:recyclerview-v7:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:cardview-v7:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:support-v4:$rootProject.supportLibraryVersion"
+    implementation "com.android.support.constraint:constraint-layout:$rootProject.constraintVersion"
+    /*Livecycle*/
+    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
+    implementation "android.arch.lifecycle:viewmodel:$lifecycle_version" // use -ktx for Kotlin
+    implementation "android.arch.lifecycle:livedata:$lifecycle_version"
+    implementation "android.arch.lifecycle:runtime:$lifecycle_version"
+    annotationProcessor "android.arch.lifecycle:compiler:$lifecycle_version" // use kapt for Kotlin
+    kapt "android.arch.lifecycle:compiler:$lifecycle_version" // use kapt for Kotlin
+    implementation "android.arch.lifecycle:common-java8:$lifecycle_version"
+    implementation "android.arch.lifecycle:reactivestreams:$lifecycle_version"
+    testImplementation "android.arch.core:core-testing:$lifecycle_version"
+    //json
+    implementation 'com.google.code.gson:gson:2.8.5'
+    //rx
+    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rootProject.rxJavaVersion"
     /*ROOM DB*/
     implementation "android.arch.persistence.room:runtime:$rootProject.archRoomVersion"
     kapt "android.arch.persistence.room:compiler:$rootProject.archRoomVersion"
     annotationProcessor "android.arch.persistence.room:compiler:$rootProject.archRoomVersion"
     implementation "android.arch.persistence.room:rxjava2:$rootProject.archRoomVersion"
-
-    //di
-    annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
-    provided 'org.glassfish:javax.annotation:10.0-b28'
-    implementation "com.google.dagger:dagger:$rootProject.daggerVersion"
-    kapt "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
-    implementation "com.google.dagger:dagger-android:$rootProject.daggerVersion"
-    kapt "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
-    implementation "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
-    kapt "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
     //workmanager
     implementation "android.arch.work:work-runtime-ktx:$rootProject.workVersion"
     // use -ktx for Kotlin
     implementation "android.arch.work:work-firebase:$rootProject.workVersion"
     //optional - Firebase JobDispatcher support
     androidTestImplementation "android.arch.work:work-testing:$rootProject.workVersion"
-    compile 'com.facebook.stetho:stetho:1.5.0'
-    compile 'com.facebook.stetho:stetho-okhttp3:1.5.0'
+    implementation 'com.facebook.stetho:stetho:1.5.0'
+    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
     //custom
-    compile 'com.redmadrobot:inputmask:3.3.0'
+    implementation 'com.redmadrobot:inputmask:3.4.4'
+    implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
+    implementation 'com.afollestad.material-dialogs:commons:0.9.6.0'
+    implementation 'com.github.GrenderG:Toasty:1.1.4'
+    implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
+    implementation 'com.obsez.android.lib.filechooser:filechooser:1.1.11'
 }
+apply plugin: 'kotlin-android-extensions'

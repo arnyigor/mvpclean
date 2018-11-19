@@ -1,10 +1,15 @@
 package com.arny.mvpclean.data.repository.main;
 
-import android.arch.persistence.room.*;
+import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
+import android.arch.persistence.room.Query;
+
 import com.arny.mvpclean.data.models.CleanFolder;
-import io.reactivex.Flowable;
 
 import java.util.List;
+
+import io.reactivex.Flowable;
 
 @Dao
 public interface CleanFolderDao {
