@@ -25,14 +25,10 @@
 	<string name="week_days">Дни недели</string>
 	<!-- Repeat types -->
 	<string-array name="repeattypes">
-		<item>15мин</item>
-		<item>30мин</item>
-		<item>1 час</item>
-		<item>3 час</item>
-		<item>6 час</item>
-		<item>9 час</item>
-		<item>12 час</item>
-		<item>18 час</item>
-		<item>24 час</item>
+		<item>@string/minutes</item>
+		<item>@string/hours</item>
+		<item>@string/days</item>
+		<item>@string/weeks</item>
+		<item>@string/months</item>
 	</string-array>
 </resources>
