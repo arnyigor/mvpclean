@@ -1,4 +1,4 @@
-package com.arny.mvpclean.data.source.base
+package com.arny.mvpclean.data.repository.base
 
 import android.content.Context
 import android.support.annotation.ColorRes

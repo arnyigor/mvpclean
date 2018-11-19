@@ -17,6 +17,8 @@ object MainContract {
         fun showMessage(message: String)
         fun updateBtn(enable: Boolean)
         fun toastSuccess(message: String)
+        fun showLastCleanTime(time: String)
+        fun setSchelude(msg: String)
     }
 
     interface Presenter : BaseMvpPresenter<View> {

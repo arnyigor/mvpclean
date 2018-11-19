@@ -6,19 +6,16 @@ import android.view.View
 import android.widget.AdapterView
 import com.arny.mvpclean.R
 import com.arny.mvpclean.data.adapters.AbstractDialogBuilder
-import com.arny.mvpclean.data.dialogs.ChoiseDialogListener
-import com.arny.mvpclean.data.dialogs.checkDialog
 import com.arny.mvpclean.data.models.ScheduleData
+import com.arny.mvpclean.data.utils.parseLong
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import kotlinx.android.synthetic.main.dialog_repeat_layout.view.*
 
 
 class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnSheduleListener) : AbstractDialogBuilder(context) {
     private var time: String? = null
-    private var count: Int = 0
     private var periodType: Int? = null
     private var scheduleData: ScheduleData? = null
-    private var weekDaysSelected: Array<Int>? = null
     private var dateTimeListener: MaskedTextChangedListener? = null
 
     interface OnSheduleListener {
@@ -33,7 +30,6 @@ class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnShe
                 scheduleData?.isWork = true
                 scheduleData?.time = editTime?.text.toString()
                 scheduleData?.isRepeat = checkRepeat?.isChecked ?: false
-                scheduleData?.repeatPeriod = count
                 scheduleData?.periodType = periodType
                 onSheduleListener.onSheduleSet(scheduleData)
             }
@@ -61,12 +57,10 @@ class ScheduleCleanDialog(context: Context, private var onSheduleListener: OnShe
     override fun updateDialogView(view: View) {
         view.apply {
             time = editTime?.text.toString()
-            count = editRepeatCount?.text.toString().toInt()
             checkRepeat?.setOnCheckedChangeListener { _, checked ->
                 val enabl = if (checked) "вкл" else "выкл"
                 checkRepeat?.text = "Повтор $enabl"
                 if (checked) {
-                    editRepeatCount?.isEnabled = true
                     spinnerRepeatType?.isEnabled = true
                 }
             }

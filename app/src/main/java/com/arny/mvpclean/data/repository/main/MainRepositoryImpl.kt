@@ -2,7 +2,7 @@ package com.arny.mvpclean.data.repository.main
 
 import android.content.Context
 import com.arny.mvpclean.CleanApp
-import com.arny.mvpclean.data.source.base.BaseRepository
+import com.arny.mvpclean.data.repository.base.BaseRepository
 
 class MainRepositoryImpl : BaseRepository, CleanRepository {
     private object Holder {

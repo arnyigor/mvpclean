@@ -14,7 +14,6 @@ import com.arny.mvpclean.data.dialogs.ConfirmDialogListener
 import com.arny.mvpclean.data.dialogs.confirmDialog
 import com.arny.mvpclean.data.models.CleanFolder
 import com.arny.mvpclean.data.models.ScheduleData
-import com.arny.mvpclean.data.utils.BasePermissions
 import com.arny.mvpclean.data.utils.ToastMaker
 import com.arny.mvpclean.presenter.base.BaseMvpActivity
 import com.arny.mvpclean.presenter.schedule.ScheduleCleanDialog
@@ -53,7 +52,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             R.id.ivEditSchedule->{
                 val dialog = ScheduleCleanDialog(this, object : ScheduleCleanDialog.OnSheduleListener {
                     override fun onSheduleSet(scheduleData: ScheduleData?) {
-                        tvSchedule.text = "Расписание:Время-${scheduleData?.time} Периодически:${scheduleData?.isRepeat}"
                         mPresenter.setSchedule(scheduleData)
                     }
                 } )
@@ -63,6 +61,14 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                 mPresenter.setSchedule(ScheduleData())
             }
         }
+    }
+
+    override fun setSchelude(msg: String) {
+        tvSchedule.text = msg
+    }
+
+    override fun showLastCleanTime(time: String) {
+        tv_last_clean_time.text = time
     }
 
     override fun showMessage(message: String) {

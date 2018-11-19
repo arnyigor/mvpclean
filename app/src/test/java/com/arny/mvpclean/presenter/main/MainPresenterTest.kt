@@ -45,4 +45,13 @@ class MainPresenterTest {
         assertThat(diff).isEqualTo(240000)
     }
 
+
+    @Test
+    fun ab_timeDiff() {
+        val timeDiff = 51500L
+        val timeFormat = DateTimeUtils.formatTime(timeDiff)
+        Log.i(MainPresenterTest::class.java.simpleName, "ab_timeDiff: timeFormat:$timeFormat");
+        assertThat(timeFormat).isNotBlank()
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.arny.mvpclean.data.utils;
 
 import java.text.DateFormatSymbols;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -319,4 +320,22 @@ public class DateTimeUtils {
         }
     }
 
+    /**
+     * Форматируем время
+     *
+     * @param time ms
+     * @return String
+     */
+    public static String formatTime(long time) {
+        double elapsed = time * 1e6;
+        if (elapsed <= 0) return "0";
+        final String[] units = new String[]{"нс", "мкс", "мс", "сек"};
+        int digitGroups = (int) (Math.log10(elapsed) / Math.log10(1000));
+        StringBuilder digs = new StringBuilder();
+        for (int i = 0; i < 3; i++) {
+            digs.append("#");
+        }
+        return new DecimalFormat("#,##0." + digs.toString()).format(elapsed / Math.pow(1000, digitGroups))
+                + " " + units[digitGroups];
+    }
 }
